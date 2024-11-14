@@ -1,6 +1,6 @@
 import { fail } from '@sveltejs/kit';
 import type { Actions } from './$types';
-import { BillabongScraper } from '$lib/scraper/billabong';
+import { BillabongScraper } from '$lib/server/scraper/billabong';
 import { isSupportedBrand, SupportedBrands } from '$lib/types/supported-brands.type';
 
 export const actions = {
@@ -19,9 +19,14 @@ export const actions = {
 
 		try {
 			const modelsList = models.toString().split('\n').filter(Boolean);
-			const results = await getResults({ models: modelsList, brand });
+			const results = await getResults({
+				brand,
+				models: modelsList
+			});
+
 			return {
 				success: true,
+				fileName: createFileNameFromBrand(brand),
 				results
 			};
 		} catch (error) {
@@ -53,4 +58,8 @@ async function getResults({
 			throw new Error('unsupported brand');
 		}
 	}
+}
+
+function createFileNameFromBrand(brand: string): string {
+	return `${brand}_materials_download_${new Date().toLocaleDateString().replaceAll('/', '-')}.csv`;
 }

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { triggerCsvDownloadFromResponse } from '$lib/utils/trigger-csv-download-from-response.util';
 	import type { ActionData } from './$types';
 
 	export let form: ActionData;
@@ -12,7 +13,15 @@
 		<p>Paste a list of models, and we will scrape the product pages for the materials</p>
 	</section>
 
-	<form class="w-1/3" method="POST" use:enhance>
+	<form
+		class="w-1/3"
+		method="POST"
+		use:enhance={({ formElement, formData, action, cancel, submitter }) => {
+			return async ({ result, update }) => {
+				triggerCsvDownloadFromResponse(result);
+			};
+		}}
+	>
 		<label class="label mb-2">
 			<textarea required name="models" class="textarea p-2" rows="10" placeholder="Models"
 			></textarea>

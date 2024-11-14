@@ -1,4 +1,4 @@
-import { chunk } from 'lodash';
+import { chunk } from 'lodash-es';
 import { JSDOM } from 'jsdom';
 
 interface ProductDetails {
@@ -6,10 +6,8 @@ interface ProductDetails {
 	materialTexts: string;
 }
 
-export class RVCAScraper {
+export class BillabongScraper {
 	private readonly modelChunks: string[][];
-	private readonly searchUrl =
-		'https://d7fc3x.a.searchspring.io/api/search/search.json?siteId=d7fc3x&resultsFormat=native&resultsPerPage=24&bgfilter.=undefined&page=1';
 
 	constructor({ models }: { models: string[] }) {
 		console.log('Splitting models into chunks of 100');
@@ -25,48 +23,48 @@ export class RVCAScraper {
 	}
 
 	private async getSearchResult(model: string) {
-		const searchResponse = await fetch(this.searchUrl + '&q=' + model, {
-			headers: {
-				accept: '*/*',
-				'accept-language': 'en-US,en;q=0.9',
-				priority: 'u=1, i',
-				'sec-ch-ua': '"Chromium";v="130", "Google Chrome";v="130", "Not?A_Brand";v="99"',
-				'sec-ch-ua-mobile': '?0',
-				'sec-ch-ua-platform': '"macOS"',
-				'sec-fetch-dest': 'empty',
-				'sec-fetch-mode': 'cors',
-				'sec-fetch-site': 'cross-site'
-			},
-			referrer: 'https://www.rvca.com/',
-			referrerPolicy: 'strict-origin-when-cross-origin',
-			body: null,
-			method: 'GET',
-			mode: 'cors',
-			credentials: 'omit'
-		});
+		const searchResponse = await fetch(
+			`https://v5bvb8.a.searchspring.io/api/search/search.json?siteId=v5bvb8&resultsFormat=native&resultsPerPage=24&bgfilter.=undefined&page=1&q=${model}`,
+			{
+				headers: {
+					accept: '*/*',
+					'accept-language': 'en-US,en;q=0.9',
+					priority: 'u=1, i',
+					'sec-ch-ua': '"Google Chrome";v="129", "Not=A?Brand";v="8", "Chromium";v="129"',
+					'sec-ch-ua-mobile': '?0',
+					'sec-ch-ua-platform': '"macOS"',
+					'sec-fetch-dest': 'empty',
+					'sec-fetch-mode': 'cors',
+					'sec-fetch-site': 'cross-site'
+				},
+				referrer: 'https://www.billabong.com/',
+				referrerPolicy: 'strict-origin-when-cross-origin',
+				body: null,
+				method: 'GET',
+				mode: 'cors',
+				credentials: 'omit'
+			}
+		);
 		return searchResponse.json();
 	}
 
 	// eslint-disable-next-line @typescript-eslint/no-explicit-any
 	private async getProductDetails(model: string, searchResult: any): Promise<ProductDetails[]> {
 		const results: ProductDetails[] = [];
-		const baseProductPageUrl = 'https://www.rvca.com';
+		const baseProductPageUrl = 'https://www.billabong.com';
 
-		const searchResults =
-			searchResult.results.length > 0 ? searchResult.results : [{ url: searchResult.singleResult }];
-
-		for (const result of searchResults) {
+		for (const result of searchResult.results) {
 			const productPageResponse = await fetch(baseProductPageUrl + '/' + result.url);
 			const productPage = await productPageResponse.text();
 			const { window } = new JSDOM(productPage);
 			const document = window.document;
 
 			const styleElement = document.getElementsByClassName('style')[0] as HTMLElement;
-			const productModel = styleElement?.textContent?.split('Style ').at(-1);
-
-			if (productModel !== model) {
-				console.log('Model not found:', productModel, model);
-				results.push({ model, materialTexts: 'NOT FOUND' });
+			if (styleElement?.textContent?.split('Style ').at(-1) !== model) {
+				results.push({
+					model,
+					materialTexts: 'NOT FOUND'
+				});
 				continue;
 			}
 
@@ -75,7 +73,6 @@ export class RVCAScraper {
 			const lastParagraph = paragraphs && (Array.from(paragraphs).at(-1) as HTMLElement);
 			const materialTexts = lastParagraph?.textContent || 'NOT FOUND';
 
-			console.log('Material text:', materialTexts);
 			results.push({ model, materialTexts });
 		}
 		return results;
