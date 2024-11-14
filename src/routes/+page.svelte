@@ -19,9 +19,9 @@
 	<form
 		class="w-1/3"
 		method="POST"
-		use:enhance={({ formElement, formData, action, cancel, submitter }) => {
+		use:enhance={({ formElement }) => {
 			isScrapeInProgress = true;
-			return async ({ result, update }) => {
+			return async ({ result }) => {
 				triggerCsvDownloadFromResponse(result);
 				formElement.reset();
 				isScrapeInProgress = false;
