@@ -1,9 +1,12 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
+	import { ProgressRadial } from '@skeletonlabs/skeleton';
 	import { triggerCsvDownloadFromResponse } from '$lib/utils/trigger-csv-download-from-response.util';
 	import type { ActionData } from './$types';
 
 	export let form: ActionData;
+
+	let isScrapeInProgress = false;
 </script>
 
 <div class="mb-4"></div>
@@ -17,8 +20,12 @@
 		class="w-1/3"
 		method="POST"
 		use:enhance={({ formElement, formData, action, cancel, submitter }) => {
+			isScrapeInProgress = true;
 			return async ({ result, update }) => {
 				triggerCsvDownloadFromResponse(result);
+				isScrapeInProgress = false;
+				// `result` is an `ActionResult` object
+				// `update` is a function which triggers the default logic that would be triggered if this callback wasn't set
 			};
 		}}
 	>
@@ -39,7 +46,16 @@
 		</div>
 
 		<div class="mt-4 text-center">
-			<button type="submit" class="btn variant-filled-primary"> Submit </button>
+			<div class="mx-auto flex h-min w-fit">
+				<button type="submit" disabled={isScrapeInProgress} class="btn variant-filled-primary">
+					Submit
+				</button>
+				{#if isScrapeInProgress}
+					<div class="ml-2 w-full">
+						<ProgressRadial width={'w-10'} stroke={60} />
+					</div>
+				{/if}
+			</div>
 		</div>
 	</form>
 
