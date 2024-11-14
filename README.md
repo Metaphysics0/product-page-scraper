@@ -1,38 +1,14 @@
-# sv
+# Product page material details scraper
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+Scrape billabong and rvca for material details, and parse to a csv
 
-## Creating a project
+![screenshot](https://res.cloudinary.com/stillworld/image/upload/v1731607895/Screenshot_2024-11-14_at_20.10.33_mcofcp.png)
 
-If you're seeing this, you've probably already done this step. Congrats!
+# Tech stack
 
-```bash
-# create a new project in the current directory
-npx sv create
-
-# create a new project in my-app
-npx sv create my-app
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+- [SvelteKit](https://svelte.dev/) for front-end + server side.
+- [Skeleton](https://www.skeleton.dev/) + [Tailwind](https://tailwindcss.com/) for styles.
+- [jsdom](https://www.npmjs.com/package/jsdom) npm package for `DOMParser()` node implementation.
+- [pLimit](https://www.npmjs.com/package/p-limit) npm package for parallelism.
+- [Vercel](https://vercel.com/home) for deployment + CI/CD.
+- [Cursor IDE](https://www.cursor.com/) AI powered fork of VSCode.

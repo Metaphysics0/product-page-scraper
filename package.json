@@ -29,7 +29,6 @@
 		"eslint-config-prettier": "^9.1.0",
 		"eslint-plugin-svelte": "^2.36.0",
 		"globals": "^15.0.0",
-		"i": "^0.3.7",
 		"prettier": "^3.3.2",
 		"prettier-plugin-svelte": "^3.2.6",
 		"prettier-plugin-tailwindcss": "^0.6.5",
@@ -42,7 +41,6 @@
 	},
 	"dependencies": {
 		"jsdom": "^25.0.1",
-		"lodash": "^4.17.21",
 		"lodash-es": "^4.17.21",
 		"p-limit": "^6.1.0"
 	}
