@@ -1,94 +1,44 @@
-import { chunk } from 'lodash-es';
-import { JSDOM } from 'jsdom';
+import { BaseScraper } from './base-scraper';
 import Fetcher from '../utils/fetcher';
+import { createDOM, extractMaterialText, extractStyleModel } from '../utils/dom-utils';
+import type { ProductDetails } from '../types/product-details.type';
+import { NOT_FOUND_TEXT } from '../constants/not-found-text.constant';
 
-interface ProductDetails {
-	model: string;
-	materialTexts: string;
-}
-
-export class RVCAScraper {
-	private readonly modelChunks: string[][];
+export class RVCAScraper extends BaseScraper {
 	private readonly searchUrl =
 		'https://d7fc3x.a.searchspring.io/api/search/search.json?siteId=d7fc3x&resultsFormat=native&resultsPerPage=24&bgfilter.=undefined&page=1';
+	private readonly baseProductPageUrl = 'https://www.rvca.com';
 
-	constructor({ models }: { models: string[] }) {
-		console.log('Splitting models into chunks of 100');
-		this.modelChunks = chunk(models, 100);
-	}
-
-	public async scrape(): Promise<string> {
-		const results = await Promise.all(
-			this.modelChunks.map((chunk) => this.getProductDetailsForModels(chunk))
-		);
-
-		return this.createCSVAndRemoveDuplicates(results);
-	}
-
-	private async getSearchResult(model: string) {
+	protected async getSearchResult(model: string) {
 		const searchResponse = await new Fetcher().fetch(this.searchUrl + '&q=' + model, {
-			referrer: 'https://www.rvca.com/'
+			referrer: this.baseProductPageUrl
 		});
 		return searchResponse.json();
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-explicit-any
-	private async getProductDetails(model: string, searchResult: any): Promise<ProductDetails[]> {
+	protected async getProductDetails(model: string, searchResult: any): Promise<ProductDetails[]> {
 		const results: ProductDetails[] = [];
-		const baseProductPageUrl = 'https://www.rvca.com';
-
 		const searchResults =
 			searchResult.results.length > 0 ? searchResult.results : [{ url: searchResult.singleResult }];
 
 		for (const result of searchResults) {
-			const productPageResponse = await fetch(baseProductPageUrl + '/' + result.url);
+			const productPageResponse = await new Fetcher().fetch(
+				this.baseProductPageUrl + '/' + result.url
+			);
 			const productPage = await productPageResponse.text();
-			const { window } = new JSDOM(productPage);
-			const document = window.document;
+			const document = await createDOM(productPage);
 
-			const styleElement = document.getElementsByClassName('style')[0] as HTMLElement;
-			const productModel = styleElement?.textContent?.split('Style ').at(-1);
-
+			const productModel = extractStyleModel(document);
 			if (productModel !== model) {
 				console.log('Model not found:', productModel, model);
-				results.push({ model, materialTexts: 'NOT FOUND' });
+				results.push({ model, materialTexts: NOT_FOUND_TEXT });
 				continue;
 			}
 
-			const accordionPanel = document.getElementsByClassName('accordion-panel')[1];
-			const paragraphs = accordionPanel?.getElementsByTagName('p');
-			const lastParagraph = paragraphs && (Array.from(paragraphs).at(-1) as HTMLElement);
-			const materialTexts = lastParagraph?.textContent || 'NOT FOUND';
-
+			const materialTexts = extractMaterialText(document);
 			console.log('Material text:', materialTexts);
 			results.push({ model, materialTexts });
 		}
 		return results;
-	}
-
-	private async getProductDetailsForModels(models: string[] = []): Promise<ProductDetails[]> {
-		const results: ProductDetails[] = [];
-		for (const [index, model] of models.entries()) {
-			console.log(`Scraping model ${index + 1}/${models.length}:`, model);
-			const searchResult = await this.getSearchResult(model);
-			const productDetails = await this.getProductDetails(model, searchResult);
-			results.push(...productDetails);
-		}
-		return results;
-	}
-
-	private createCSVAndRemoveDuplicates(results: ProductDetails[][]): string {
-		const flatResults = results.flat();
-		const uniqueResults = flatResults.reduce((acc: ProductDetails[], current) => {
-			if (!acc.find((item) => item.model === current.model)) {
-				acc.push(current);
-			}
-			return acc;
-		}, []);
-
-		const csvRows = uniqueResults.map(
-			({ model, materialTexts }) => `${model},"${materialTexts.replace(/"/g, '""')}"`
-		);
-		return ['model,materialText', ...csvRows].join('\n');
 	}
 }

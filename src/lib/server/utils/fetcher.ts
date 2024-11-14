@@ -7,10 +7,7 @@ export default class Fetcher {
 	}
 
 	fetch(url: string, options: Record<string, any> = {}) {
-		return fetch(url, {
-			...this.options,
-			...options
-		});
+		return fetch(url, { ...this.options, ...options });
 	}
 
 	get options() {
