@@ -23,24 +23,36 @@
 			isScrapeInProgress = true;
 			return async ({ result, update }) => {
 				triggerCsvDownloadFromResponse(result);
+				formElement.reset();
 				isScrapeInProgress = false;
-				// `result` is an `ActionResult` object
-				// `update` is a function which triggers the default logic that would be triggered if this callback wasn't set
 			};
 		}}
 	>
 		<label class="label mb-2">
-			<textarea required name="models" class="textarea p-2" rows="10" placeholder="Models"
+			<textarea
+				required
+				name="models"
+				class="textarea p-2"
+				rows="10"
+				placeholder="Models"
+				disabled={isScrapeInProgress}
 			></textarea>
 		</label>
 
 		<div class="mx-auto w-fit">
 			<label class="flex items-center space-x-2">
-				<input class="radio" type="radio" checked name="brand" value="billabong" />
+				<input
+					class="radio"
+					type="radio"
+					checked
+					name="brand"
+					value="billabong"
+					disabled={isScrapeInProgress}
+				/>
 				<p>Billabong</p>
 			</label>
 			<label class="flex items-center space-x-2">
-				<input class="radio" type="radio" name="brand" value="rvca" />
+				<input class="radio" type="radio" name="brand" value="rvca" disabled={isScrapeInProgress} />
 				<p>RVCA</p>
 			</label>
 		</div>
