@@ -1,28 +1,18 @@
-import { fail } from '@sveltejs/kit';
 import type { Actions } from './$types';
-import { BillabongScraper } from '$lib/server/scraper/billabong';
-import { isSupportedBrand, SupportedBrands } from '$lib/types/supported-brands.type';
+import { ScraperService } from '$lib/server/services/scraper.service';
+import { parseModelsFromFormData, createFileNameFromBrand } from '$lib/server/utils/form.utils';
+import { handleScraperError, validateBrand } from '$lib/server/utils/error.utils';
 
 export const actions = {
 	default: async ({ request }) => {
-		const data = await request.formData();
-		const models = data.get('models');
-		const brand = data.get('brand');
-
-		if (!models) return fail(400, { error: 'Models are required' });
-
-		if (!isSupportedBrand(brand)) {
-			throw new Error(
-				`Invalid brand: ${brand}. Supported brands are: ${Object.values(SupportedBrands).join(', ')}`
-			);
-		}
-
 		try {
-			const modelsList = models.toString().split('\n').filter(Boolean);
-			const results = await getResults({
-				brand,
-				models: modelsList
-			});
+			const formData = await request.formData();
+			const models = parseModelsFromFormData(formData);
+			const brand = formData.get('brand');
+
+			validateBrand(brand);
+
+			const results = await ScraperService.scrapeModels({ brand, models });
 
 			return {
 				success: true,
@@ -30,36 +20,7 @@ export const actions = {
 				results
 			};
 		} catch (error) {
-			console.log('error', error);
-
-			return fail(500, { message: 'unknown server error' });
+			return handleScraperError(error);
 		}
 	}
 } satisfies Actions;
-
-async function getResults({
-	models,
-	brand
-}: {
-	models: string[];
-	brand: SupportedBrands;
-}): Promise<string> {
-	switch (brand) {
-		case SupportedBrands.BILLABONG: {
-			const scraper = new BillabongScraper({ models });
-			return scraper.scrape();
-		}
-
-		case SupportedBrands.RVCA: {
-			const scraper = new BillabongScraper({ models });
-			return scraper.scrape();
-		}
-		default: {
-			throw new Error('unsupported brand');
-		}
-	}
-}
-
-function createFileNameFromBrand(brand: string): string {
-	return `${brand}_materials_download_${new Date().toLocaleDateString().replaceAll('/', '-')}.csv`;
-}

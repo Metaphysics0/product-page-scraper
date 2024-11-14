@@ -5,6 +5,7 @@ export function extractMaterialText(document: Document): string {
 	const accordionPanel = document.getElementsByClassName('accordion-panel')[1];
 	const paragraphs = accordionPanel?.getElementsByTagName('p');
 	const lastParagraph = paragraphs && (Array.from(paragraphs).at(-1) as HTMLElement);
+
 	return lastParagraph?.textContent || NOT_FOUND_TEXT;
 }
 
@@ -13,7 +14,7 @@ export function extractStyleModel(document: Document): string | undefined {
 	return styleElement?.textContent?.split('Style ').at(-1);
 }
 
-export async function createDOM(html: string): Promise<Document> {
+export function createDOM(html: string): Document {
 	const { window } = new JSDOM(html);
 	return window.document;
 }

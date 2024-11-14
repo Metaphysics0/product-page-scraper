@@ -1,5 +1,5 @@
-import { chunk } from 'lodash-es';
 import pLimit from 'p-limit';
+import { chunk } from 'lodash-es';
 import type { ProductDetails } from '../types/product-details.type';
 import { CSV_HEADERS } from '../constants/csv-headers.constant';
 

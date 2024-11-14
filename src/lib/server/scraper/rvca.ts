@@ -10,10 +10,9 @@ export class RVCAScraper extends BaseScraper {
 	private readonly baseProductPageUrl = 'https://www.rvca.com';
 
 	protected async getSearchResult(model: string) {
-		const searchResponse = await new Fetcher().fetch(this.searchUrl + '&q=' + model, {
+		return new Fetcher().fetchAndReturnJson(`${this.searchUrl}&q=${model}`, {
 			referrer: this.baseProductPageUrl
 		});
-		return searchResponse.json();
 	}
 
 	protected async getProductDetails(model: string, searchResult: any): Promise<ProductDetails[]> {
@@ -26,7 +25,7 @@ export class RVCAScraper extends BaseScraper {
 				this.baseProductPageUrl + '/' + result.url
 			);
 			const productPage = await productPageResponse.text();
-			const document = await createDOM(productPage);
+			const document = createDOM(productPage);
 
 			const productModel = extractStyleModel(document);
 			if (productModel !== model) {

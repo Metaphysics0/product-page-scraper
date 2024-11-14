@@ -6,8 +6,13 @@ export default class Fetcher {
 		this.withRotatingUserAgent = withRotatingUserAgent;
 	}
 
-	fetch(url: string, options: Record<string, any> = {}) {
+	async fetch(url: string, options: Record<string, any> = {}) {
 		return fetch(url, { ...this.options, ...options });
+	}
+
+	async fetchAndReturnJson(url: string, options: Record<string, any> = {}) {
+		const response = await this.fetch(url, options);
+		return response.json();
 	}
 
 	get options() {
