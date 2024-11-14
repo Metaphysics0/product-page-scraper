@@ -34,7 +34,11 @@
 				name="models"
 				class="textarea p-2"
 				rows="10"
-				placeholder="Models"
+				placeholder="ABBBS00195
+ABBBS00196
+ABBBS00199
+ABBBS00200
+..."
 				disabled={isScrapeInProgress}
 			></textarea>
 		</label>
