@@ -1,5 +1,6 @@
 import { chunk } from 'lodash-es';
 import { JSDOM } from 'jsdom';
+import Fetcher from '../utils/fetcher';
 
 interface ProductDetails {
 	model: string;
@@ -54,7 +55,7 @@ export class BillabongScraper {
 		const baseProductPageUrl = 'https://www.billabong.com';
 
 		for (const result of searchResult.results) {
-			const productPageResponse = await fetch(baseProductPageUrl + '/' + result.url);
+			const productPageResponse = await new Fetcher().fetch(baseProductPageUrl + '/' + result.url);
 			const productPage = await productPageResponse.text();
 			const { window } = new JSDOM(productPage);
 			const document = window.document;

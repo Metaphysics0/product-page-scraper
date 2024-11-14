@@ -1,5 +1,6 @@
 import { chunk } from 'lodash-es';
 import { JSDOM } from 'jsdom';
+import Fetcher from '../utils/fetcher';
 
 interface ProductDetails {
 	model: string;
@@ -25,24 +26,8 @@ export class RVCAScraper {
 	}
 
 	private async getSearchResult(model: string) {
-		const searchResponse = await fetch(this.searchUrl + '&q=' + model, {
-			headers: {
-				accept: '*/*',
-				'accept-language': 'en-US,en;q=0.9',
-				priority: 'u=1, i',
-				'sec-ch-ua': '"Chromium";v="130", "Google Chrome";v="130", "Not?A_Brand";v="99"',
-				'sec-ch-ua-mobile': '?0',
-				'sec-ch-ua-platform': '"macOS"',
-				'sec-fetch-dest': 'empty',
-				'sec-fetch-mode': 'cors',
-				'sec-fetch-site': 'cross-site'
-			},
-			referrer: 'https://www.rvca.com/',
-			referrerPolicy: 'strict-origin-when-cross-origin',
-			body: null,
-			method: 'GET',
-			mode: 'cors',
-			credentials: 'omit'
+		const searchResponse = await new Fetcher().fetch(this.searchUrl + '&q=' + model, {
+			referrer: 'https://www.rvca.com/'
 		});
 		return searchResponse.json();
 	}
