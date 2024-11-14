@@ -75,7 +75,7 @@ ABBBS00200
 		</div>
 	</form>
 
-	{#if form?.error}
-		<p class="text-error-500 mt-4">{form.error}</p>
+	{#if form?.success}
+		<p class="text-error-500 mt-4">{form.message}</p>
 	{/if}
 </main>
