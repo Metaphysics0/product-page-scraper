@@ -17,13 +17,9 @@ export const actions = {
 			const messageQueueResponse = await client.publishJSON({
 				url: WORKERS_API_DOMAIN + '/scrape',
 				method: 'POST',
-				body: {
-					models,
-					brand,
-					emailTo
-				}
+				body: { models, brand, emailTo }
 			});
-			console.log('messagequeue response', messageQueueResponse);
+			console.log('Queued message', messageQueueResponse);
 
 			return {
 				success: true
