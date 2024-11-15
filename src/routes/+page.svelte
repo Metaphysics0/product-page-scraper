@@ -29,6 +29,7 @@
 		}}
 	>
 		<label class="label mb-2">
+			<p>Models:</p>
 			<textarea
 				required
 				name="models"
@@ -43,7 +44,12 @@ ABBBS00200
 			></textarea>
 		</label>
 
-		<div class="mx-auto w-fit">
+		<label class="label mb-4">
+			<span>Email:</span>
+			<input class="input p-2" type="email" placeholder="ryan@mail.com" />
+		</label>
+
+		<div class="mx-auto flex w-fit gap-5">
 			<label class="flex items-center space-x-2">
 				<input
 					class="radio"
@@ -63,7 +69,7 @@ ABBBS00200
 
 		<div class="mt-4 text-center">
 			<div class="mx-auto flex h-min w-fit">
-				<button type="submit" disabled={isScrapeInProgress} class="btn variant-filled-primary">
+				<button type="submit" disabled={isScrapeInProgress} class="variant-filled-primary btn">
 					Submit
 				</button>
 				{#if isScrapeInProgress}
@@ -76,6 +82,6 @@ ABBBS00200
 	</form>
 
 	{#if form?.success}
-		<p class="text-error-500 mt-4">{form.message}</p>
+		<p class="mt-4 text-error-500">{form.message}</p>
 	{/if}
 </main>
