@@ -1,12 +1,14 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { ProgressRadial } from '@skeletonlabs/skeleton';
-	import { triggerCsvDownloadFromResponse } from '$lib/utils/trigger-csv-download-from-response.util';
 	import type { ActionData } from './$types';
 
 	export let form: ActionData;
 
 	let isScrapeInProgress = false;
+	import { getToastStore } from '@skeletonlabs/skeleton';
+
+	const toastStore = getToastStore();
 </script>
 
 <div class="mb-4"></div>
@@ -22,7 +24,9 @@
 		use:enhance={({ formElement }) => {
 			isScrapeInProgress = true;
 			return async ({ result }) => {
-				// triggerCsvDownloadFromResponse(result);
+				toastStore.trigger({
+					message: 'Check your email!'
+				});
 				formElement.reset();
 				isScrapeInProgress = false;
 			};
