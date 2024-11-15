@@ -1,12 +1,14 @@
 <script lang="ts">
 	import { enhance } from '$app/forms';
 	import { ProgressRadial } from '@skeletonlabs/skeleton';
-	import { triggerCsvDownloadFromResponse } from '$lib/utils/trigger-csv-download-from-response.util';
 	import type { ActionData } from './$types';
 
 	export let form: ActionData;
 
 	let isScrapeInProgress = false;
+	import { getToastStore } from '@skeletonlabs/skeleton';
+
+	const toastStore = getToastStore();
 </script>
 
 <div class="mb-4"></div>
@@ -22,13 +24,16 @@
 		use:enhance={({ formElement }) => {
 			isScrapeInProgress = true;
 			return async ({ result }) => {
-				triggerCsvDownloadFromResponse(result);
+				toastStore.trigger({
+					message: 'Check your email!'
+				});
 				formElement.reset();
 				isScrapeInProgress = false;
 			};
 		}}
 	>
 		<label class="label mb-2">
+			<p>Models:</p>
 			<textarea
 				required
 				name="models"
@@ -43,7 +48,12 @@ ABBBS00200
 			></textarea>
 		</label>
 
-		<div class="mx-auto w-fit">
+		<label class="label mb-4">
+			<span>Email:</span>
+			<input name="emailTo" class="input p-2" type="email" placeholder="ryan@mail.com" />
+		</label>
+
+		<div class="mx-auto flex w-fit gap-5">
 			<label class="flex items-center space-x-2">
 				<input
 					class="radio"
@@ -63,7 +73,7 @@ ABBBS00200
 
 		<div class="mt-4 text-center">
 			<div class="mx-auto flex h-min w-fit">
-				<button type="submit" disabled={isScrapeInProgress} class="btn variant-filled-primary">
+				<button type="submit" disabled={isScrapeInProgress} class="variant-filled-primary btn">
 					Submit
 				</button>
 				{#if isScrapeInProgress}
@@ -76,6 +86,6 @@ ABBBS00200
 	</form>
 
 	{#if form?.success}
-		<p class="text-error-500 mt-4">{form.message}</p>
+		<p class="mt-4 text-error-500">{form.message}</p>
 	{/if}
 </main>
