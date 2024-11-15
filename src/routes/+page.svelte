@@ -22,7 +22,7 @@
 		use:enhance={({ formElement }) => {
 			isScrapeInProgress = true;
 			return async ({ result }) => {
-				triggerCsvDownloadFromResponse(result);
+				// triggerCsvDownloadFromResponse(result);
 				formElement.reset();
 				isScrapeInProgress = false;
 			};
@@ -46,7 +46,7 @@ ABBBS00200
 
 		<label class="label mb-4">
 			<span>Email:</span>
-			<input class="input p-2" type="email" placeholder="ryan@mail.com" />
+			<input name="emailTo" class="input p-2" type="email" placeholder="ryan@mail.com" />
 		</label>
 
 		<div class="mx-auto flex w-fit gap-5">

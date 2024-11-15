@@ -1,23 +1,32 @@
 import type { Actions } from './$types';
-import { ScraperService } from '$lib/server/services/scraper.service';
-import { parseModelsFromFormData, createFileNameFromBrand } from '$lib/server/utils/form.utils';
+import { parseModelsFromFormData } from '$lib/server/utils/form.utils';
 import { handleScraperError, validateBrand } from '$lib/server/utils/error.utils';
+import { WORKERS_API_DOMAIN } from '$env/static/private';
+import { client } from '$lib/server/services/qstash.service';
 
 export const actions = {
-	default: async ({ request }) => {
+	default: async ({ request, fetch }) => {
 		try {
 			const formData = await request.formData();
 			const models = parseModelsFromFormData(formData);
 			const brand = formData.get('brand');
+			const emailTo = formData.get('emailTo');
 
 			validateBrand(brand);
 
-			const results = await ScraperService.scrapeModels({ brand, models });
+			const messageQueueResponse = await client.publishJSON({
+				url: WORKERS_API_DOMAIN + '/scrape',
+				method: 'POST',
+				body: {
+					models,
+					brand,
+					emailTo
+				}
+			});
+			console.log('messagequeue response', messageQueueResponse);
 
 			return {
-				success: true,
-				fileName: createFileNameFromBrand(brand),
-				results
+				success: true
 			};
 		} catch (error) {
 			return handleScraperError(error);
