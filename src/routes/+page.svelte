@@ -21,12 +21,9 @@
 	<form
 		class="w-1/3"
 		method="POST"
-		use:enhance={({ formElement }) => {
+		use:enhance={({ formElement, formData }) => {
 			isScrapeInProgress = true;
 			return async ({ result }) => {
-				toastStore.trigger({
-					message: 'Check your email!'
-				});
 				formElement.reset();
 				isScrapeInProgress = false;
 			};
@@ -46,11 +43,6 @@ ABBBS00200
 ..."
 				disabled={isScrapeInProgress}
 			></textarea>
-		</label>
-
-		<label class="label mb-4">
-			<span>Email:</span>
-			<input name="emailTo" class="input p-2" type="email" placeholder="ryan@mail.com" />
 		</label>
 
 		<div class="mx-auto flex w-fit gap-5">
