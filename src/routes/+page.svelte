@@ -1,14 +1,14 @@
 <script lang="ts">
-	import { enhance } from '$app/forms';
 	import { ProgressRadial } from '@skeletonlabs/skeleton';
 	import type { ActionData } from './$types';
 	import { scrapeBillabong } from '$lib/scripts/billabong.scraper';
 	import { scrapeRVCA } from '$lib/scripts/rvca.scraper';
-
-	export let form: ActionData;
+	import { triggerDownload } from '$lib/utils/trigger-download.util';
+	import type { ScrapedResult } from '$lib/types/scraped-result.type';
+	import ScrapedModelsList from '$lib/ui/ScrapedModelsList.svelte';
 
 	let isScrapeInProgress = false;
-	let results: Array<{ model: string; success: boolean; materials?: string }> = [];
+	let results: Array<ScrapedResult> = [];
 
 	async function handleSubmit(event: Event) {
 		event.preventDefault();
@@ -34,9 +34,11 @@
 			}
 		}
 
-		// Generate and download CSV
-		const csv = generateCSV(results);
-		downloadCSV(csv, `${brand}-materials.csv`);
+		triggerDownload({
+			fileContents: generateCSV(results),
+			filename: `${brand}-materials.csv`,
+			contentType: 'text/csv'
+		});
 
 		isScrapeInProgress = false;
 	}
@@ -47,16 +49,6 @@
 			[model, success.toString(), materials || ''].join(',')
 		);
 		return [headers.join(','), ...rows].join('\n');
-	}
-
-	function downloadCSV(csv: string, filename: string) {
-		const blob = new Blob([csv], { type: 'text/csv' });
-		const url = window.URL.createObjectURL(blob);
-		const a = document.createElement('a');
-		a.href = url;
-		a.download = filename;
-		a.click();
-		window.URL.revokeObjectURL(url);
 	}
 </script>
 
@@ -116,23 +108,5 @@ ABBBS00200
 		</div>
 	</form>
 
-	{#if results.length > 0}
-		<div class="mt-4 w-1/3 space-y-2">
-			<h2 class="text-lg font-semibold">Results:</h2>
-			{#each results as { model, success }}
-				<div class="flex items-center gap-2 rounded bg-surface-200 p-2">
-					<span class="flex-1">{model}</span>
-					{#if success}
-						<span class="text-success-500">✓</span>
-					{:else}
-						<span class="text-error-500">✗</span>
-					{/if}
-				</div>
-			{/each}
-		</div>
-	{/if}
-
-	{#if form?.success}
-		<p class="mt-4 text-error-500">{form.message}</p>
-	{/if}
+	<ScrapedModelsList {results} />
 </main>
