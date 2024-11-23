@@ -76,7 +76,7 @@
 	];
 </script>
 
-<div class="mb-4"></div>
+<div class="mb-1"></div>
 <main class="flex flex-col items-center justify-center">
 	<Header />
 	<form class="w-1/3" on:submit={handleSubmit}>
