@@ -1,3 +1,6 @@
+// @ts-nocheck
+import { NOT_FOUND_TEXT } from '$lib/constants/not-found-text.constant';
+
 async function getSearchResult(model) {
 	const searchResponse = await fetch(
 		`https://v5bvb8.a.searchspring.io/api/search/search.json?siteId=v5bvb8&resultsFormat=native&resultsPerPage=24&bgfilter.=undefined&page=1&q=${model}`,
@@ -38,7 +41,7 @@ async function getProductDetails(model, searchResult) {
 		) {
 			results.push({
 				model,
-				materialTexts: 'NOT FOUND'
+				materialTexts: NOT_FOUND_TEXT
 			});
 			continue;
 		}
@@ -63,7 +66,7 @@ function createCSVAndRemoveDuplicates(results) {
 function getFirstRelevantResult(results) {
 	return (
 		results.filter((result) => result.materialTexts !== 'Features').at(0)?.materialTexts ||
-		'NOT FOUND'
+		NOT_FOUND_TEXT
 	);
 }
 

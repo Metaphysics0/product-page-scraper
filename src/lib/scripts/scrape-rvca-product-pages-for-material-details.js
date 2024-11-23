@@ -1,4 +1,6 @@
 // @ts-nocheck
+import { NOT_FOUND_TEXT } from '$lib/constants/not-found-text.constant';
+
 const searchUrl =
 	'https://d7fc3x.a.searchspring.io/api/search/search.json?siteId=d7fc3x&resultsFormat=native&resultsPerPage=24&bgfilter.=undefined&page=1';
 
@@ -30,13 +32,7 @@ async function getProductDetails(model, searchResult) {
 	const baseProductPageUrl = 'https://www.rvca.com';
 
 	const searchResults =
-		searchResult.results.length > 0
-			? searchResult.results
-			: [
-					{
-						url: searchResult.singleResult
-					}
-				];
+		searchResult.results.length > 0 ? searchResult.results : [{ url: searchResult.singleResult }];
 
 	for (const result of searchResults) {
 		const productPageResponse = await fetch(baseProductPageUrl + '/' + result.url);
@@ -50,7 +46,7 @@ async function getProductDetails(model, searchResult) {
 
 		if (productModel !== model) {
 			console.log('Model not found:', productModel, model);
-			results.push({ model, materialTexts: 'NOT FOUND' });
+			results.push({ model, materialTexts: NOT_FOUND_TEXT });
 			continue;
 		}
 
@@ -59,90 +55,19 @@ async function getProductDetails(model, searchResult) {
 		).at(-1).innerText;
 
 		console.log('Material text:', materialTexts);
-
 		results.push({ model, materialTexts });
 	}
 	return results;
 }
 
-const models = [
-	'ABJKT00515',
-	'ABJKT00572',
-	'ABYWT00268',
-	'ABYZT02314',
-	'ABYZT02314',
-	'ABYZT02363',
-	'ABYZT02364',
-	'ABYZT02365',
-	'ABYZT02366',
-	'ABYZT02367',
-	'ABYZT02368',
-	'ABYZT02369',
-	'ABYZT02370',
-	'ABYZT02372',
-	'ABYZT02373',
-	'ABYZT02374',
-	'ABYZT02401',
-	'ABYZT02514',
-	'ABYZT02514',
-	'ABYZT02515',
-	'ABYZT02518',
-	'UBYZT00516',
-	'ABGNS00106',
-	'ABGNS00106',
-	'ABYTK03005',
-	'ABYTK03006',
-	'ABYWS00224',
-	'ABYWS00225',
-	'G203JMAD',
-	'ABYFT00474',
-	'ABYSF00122',
-	'ABYSF00123',
-	'ABJX300981',
-	'ABJX300994',
-	'ABJX400214',
-	'ABJX400307',
-	'ABJX400507',
-	'ABJX400901',
-	'ABJX400981',
-	'ABJX401018',
-	'ABYBS00450',
-	'ABYBS00453',
-	'ABYBS00454',
-	'ABYBS00455',
-	'ABYBS00459',
-	'ABYBS00464',
-	'ABYBS00468',
-	'ABYBS00485',
-	'ABYBS00488',
-	'ABYBS00489',
-	'ABYBS00496',
-	'ABYBS00500',
-	'ABYJV00135',
-	'ABYJV00135'
-];
+function getFirstRelevantResult(results) {
+	return results.at(0)?.materialTexts || NOT_FOUND_TEXT;
+}
 
-const results = [];
-
-for (const [index, model] of models.entries()) {
-	console.log(`Scraping model ${index + 1}/${models.length}:`, model);
+export async function scrapeMaterialDetailsFromRVCA(model) {
+	console.log(`Scraping RVCA model`, model);
 	const searchResult = await getSearchResult(model);
 	const productDetails = await getProductDetails(model, searchResult);
-	results.push(...productDetails);
-}
 
-function createCSVAndRemoveDuplicates(results) {
-	const flatResults = results.flat();
-	const uniqueResults = flatResults.reduce((acc, current) => {
-		if (!acc.find((item) => item.model === current.model)) {
-			acc.push(current);
-		}
-		return acc;
-	}, []);
-	const csvRows = uniqueResults.map(
-		({ model, materialTexts }) => `${model},"${materialTexts.replace(/"/g, '""')}"`
-	);
-	return ['model,materialText', ...csvRows].join('\n');
+	return getFirstRelevantResult(productDetails);
 }
-
-await Deno.writeTextFile('rvca-material-details.csv', createCSVAndRemoveDuplicates(results));

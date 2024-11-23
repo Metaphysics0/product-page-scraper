@@ -1,11 +1,11 @@
 <script lang="ts">
 	import { ProgressRadial } from '@skeletonlabs/skeleton';
-	import type { ActionData } from './$types';
 	import { scrapeBillabong } from '$lib/scripts/billabong.scraper';
 	import { scrapeRVCA } from '$lib/scripts/rvca.scraper';
 	import { triggerDownload } from '$lib/utils/trigger-download.util';
 	import type { ScrapedResult } from '$lib/types/scraped-result.type';
-	import ScrapedModelsList from '$lib/ui/ScrapedModelsList.svelte';
+	import ResultsList from '$lib/ui/ResultsList.svelte';
+	import { SupportedBrands } from '$lib/types/supported-brands.type';
 
 	let isScrapeInProgress = false;
 	let results: Array<ScrapedResult> = [];
@@ -23,7 +23,7 @@
 		isScrapeInProgress = true;
 		results = [];
 
-		const scraper = brand === 'billabong' ? scrapeBillabong : scrapeRVCA;
+		const scraper = brand === SupportedBrands.BILLABONG ? scrapeBillabong : scrapeRVCA;
 
 		for (const model of models) {
 			try {
@@ -44,10 +44,8 @@
 	}
 
 	function generateCSV(data: typeof results): string {
-		const headers = ['Model', 'Success', 'Materials'];
-		const rows = data.map(({ model, success, materials }) =>
-			[model, success.toString(), materials || ''].join(',')
-		);
+		const headers = ['Model', 'Materials'];
+		const rows = data.map(({ model, materials }) => [model, materials || ''].join(','));
 		return [headers.join(','), ...rows].join('\n');
 	}
 </script>
@@ -61,7 +59,7 @@
 
 	<form class="w-1/3" on:submit={handleSubmit}>
 		<label class="label mb-2">
-			<p>Models:</p>
+			<p class="text-lg font-semibold">Models:</p>
 			<textarea
 				required
 				name="models"
@@ -83,13 +81,19 @@ ABBBS00200
 					type="radio"
 					checked
 					name="brand"
-					value="billabong"
+					value={SupportedBrands.BILLABONG}
 					disabled={isScrapeInProgress}
 				/>
 				<p>Billabong</p>
 			</label>
 			<label class="flex items-center space-x-2">
-				<input class="radio" type="radio" name="brand" value="rvca" disabled={isScrapeInProgress} />
+				<input
+					class="radio"
+					type="radio"
+					name="brand"
+					value={SupportedBrands.RVCA}
+					disabled={isScrapeInProgress}
+				/>
 				<p>RVCA</p>
 			</label>
 		</div>
@@ -108,5 +112,5 @@ ABBBS00200
 		</div>
 	</form>
 
-	<ScrapedModelsList {results} />
+	<ResultsList {results} />
 </main>
