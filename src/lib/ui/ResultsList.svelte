@@ -7,7 +7,7 @@
 </script>
 
 {#if results.length > 0}
-	<div class="mt-4 w-1/3">
+	<div class="~w-[20rem]/[37rem] mt-4">
 		<div class="flex justify-between">
 			<h2 class="text-lg font-semibold">Results:</h2>
 		</div>

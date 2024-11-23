@@ -76,10 +76,10 @@
 	];
 </script>
 
-<div class="mb-4"></div>
+<div class="mb-1"></div>
 <main class="flex flex-col items-center justify-center">
 	<Header />
-	<form class="w-1/3" on:submit={handleSubmit}>
+	<form class="~w-[20rem]/[37rem]" on:submit={handleSubmit}>
 		<label class="label mb-2">
 			<p class="text-lg font-semibold">Models:</p>
 			<textarea
