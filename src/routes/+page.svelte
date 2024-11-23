@@ -6,9 +6,14 @@
 	import type { ScrapedResult } from '$lib/types/scraped-result.type';
 	import ResultsList from '$lib/ui/ResultsList.svelte';
 	import { SupportedBrands } from '$lib/types/supported-brands.type';
+	import { generateCSV } from '$lib/utils/generate-csv.util';
+	import { fade } from 'svelte/transition';
+	import Radio from '$lib/ui/common/Radio.svelte';
 
 	let isScrapeInProgress = false;
 	let results: Array<ScrapedResult> = [];
+
+	let hasSubmittedForm = false;
 
 	async function handleSubmit(event: Event) {
 		event.preventDefault();
@@ -41,13 +46,30 @@
 		});
 
 		isScrapeInProgress = false;
+		hasSubmittedForm = true;
 	}
 
-	function generateCSV(data: typeof results): string {
-		const headers = ['Model', 'Materials'];
-		const rows = data.map(({ model, materials }) => [model, materials || ''].join(','));
-		return [headers.join(','), ...rows].join('\n');
+	function resetForm(event: Event): void {
+		const form = event.target as HTMLFormElement;
+		form.closest('form')?.reset();
+		results = [];
+		hasSubmittedForm = false;
 	}
+
+	const supportedBrandsRadioButtons = [
+		{
+			value: SupportedBrands.BILLABONG,
+			name: 'brand',
+			label: 'Billabong',
+			disabled: isScrapeInProgress
+		},
+		{
+			value: SupportedBrands.RVCA,
+			name: 'brand',
+			label: 'RVCA',
+			disabled: isScrapeInProgress
+		}
+	];
 </script>
 
 <div class="mb-4"></div>
@@ -75,40 +97,36 @@ ABBBS00200
 		</label>
 
 		<div class="mx-auto flex w-fit gap-5">
-			<label class="flex items-center space-x-2">
-				<input
-					class="radio"
-					type="radio"
-					checked
-					name="brand"
-					value={SupportedBrands.BILLABONG}
-					disabled={isScrapeInProgress}
-				/>
-				<p>Billabong</p>
-			</label>
-			<label class="flex items-center space-x-2">
-				<input
-					class="radio"
-					type="radio"
-					name="brand"
-					value={SupportedBrands.RVCA}
-					disabled={isScrapeInProgress}
-				/>
-				<p>RVCA</p>
-			</label>
+			{#each supportedBrandsRadioButtons as radioButtonProps}
+				<Radio {...radioButtonProps} />
+			{/each}
 		</div>
 
-		<div class="mt-4 text-center">
-			<div class="mx-auto flex h-min w-fit">
+		<div class="mt-4 flex items-center justify-between">
+			<div class="invisible">reset 🔁</div>
+
+			<div class="flex items-center gap-2">
 				<button type="submit" disabled={isScrapeInProgress} class="variant-filled-primary btn">
 					Submit
 				</button>
 				{#if isScrapeInProgress}
-					<div class="ml-2 w-full">
-						<ProgressRadial width={'w-10'} stroke={60} />
-					</div>
+					<ProgressRadial width={'w-10'} stroke={60} />
 				{/if}
 			</div>
+
+			{#if hasSubmittedForm && results.length}
+				<button
+					on:click={resetForm}
+					type="reset"
+					in:fade={{ delay: 500 }}
+					class="font-medium!"
+					disabled={isScrapeInProgress}
+				>
+					Reset 🔁
+				</button>
+			{:else}
+				<div class="invisible">reset 🔁</div>
+			{/if}
 		</div>
 	</form>
 
