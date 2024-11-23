@@ -4,7 +4,6 @@
 	import { popup } from '@skeletonlabs/skeleton';
 
 	export let results: Array<ScrapedResult> = [];
-	console.log('RESULTS', results);
 </script>
 
 {#if results.length > 0}
