@@ -6,9 +6,6 @@ Scrape billabong and rvca for material details, and parse to a csv
 
 # Tech stack
 
-- [SvelteKit](https://svelte.dev/) for front-end + server side.
+- [SvelteKit](https://svelte.dev/)
 - [Skeleton](https://www.skeleton.dev/) + [Tailwind](https://tailwindcss.com/) for styles.
-- [jsdom](https://www.npmjs.com/package/jsdom) npm package for `DOMParser()` node implementation.
-- [pLimit](https://www.npmjs.com/package/p-limit) npm package for parallelism.
 - [Vercel](https://vercel.com/home) for deployment + CI/CD.
-- [Cursor IDE](https://www.cursor.com/) AI powered fork of VSCode.
