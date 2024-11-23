@@ -8,7 +8,10 @@
 	import { SupportedBrands } from '$lib/types/supported-brands.type';
 	import { generateCSV } from '$lib/utils/generate-csv.util';
 	import { fade } from 'svelte/transition';
-	import Radio from '$lib/ui/common/Radio.svelte';
+	import { parseModelsFromFormData } from '$lib/utils/form.utils';
+	import { validateBrand } from '$lib/utils/validation.utils';
+	import RadioButton from '$lib/ui/common/RadioButton.svelte';
+	import Header from '$lib/ui/Header.svelte';
 
 	let isScrapeInProgress = false;
 	let results: Array<ScrapedResult> = [];
@@ -20,8 +23,9 @@
 		const form = event.target as HTMLFormElement;
 		const formData = new FormData(form);
 
-		const models = formData.get('models')?.toString().split('\n').filter(Boolean) || [];
-		const brand = formData.get('brand')?.toString();
+		const models = parseModelsFromFormData(formData);
+		const brand = formData.get('brand');
+		validateBrand(brand);
 
 		if (!models.length || !brand) return;
 
@@ -74,11 +78,7 @@
 
 <div class="mb-4"></div>
 <main class="flex flex-col items-center justify-center">
-	<section class="mb-3 text-center">
-		<h1 class="h1 mb-2">Netta's Automation 🚀</h1>
-		<p>Paste a list of models, and we will scrape the product pages for the materials</p>
-	</section>
-
+	<Header />
 	<form class="w-1/3" on:submit={handleSubmit}>
 		<label class="label mb-2">
 			<p class="text-lg font-semibold">Models:</p>
@@ -98,7 +98,7 @@ ABBBS00200
 
 		<div class="mx-auto flex w-fit gap-5">
 			{#each supportedBrandsRadioButtons as radioButtonProps}
-				<Radio {...radioButtonProps} />
+				<RadioButton {...radioButtonProps} />
 			{/each}
 		</div>
 
