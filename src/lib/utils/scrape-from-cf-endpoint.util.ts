@@ -10,12 +10,11 @@ export async function scrapeModelsFromCf({
 	models: string[];
 }): Promise<CfScrapeResult[]> {
 	try {
-		const modelChunks = _.chunk(models, 5);
+		const modelChunks = _.chunk(models, 10);
 		const results = await Promise.all(modelChunks.map((models) => call({ models, brand })));
 		return results.flat();
 	} catch (error) {
 		console.error('error scraping', error);
-
 		return [];
 	}
 }

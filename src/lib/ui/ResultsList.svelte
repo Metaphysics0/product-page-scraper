@@ -1,5 +1,8 @@
 <script lang="ts">
-	import { NOT_FOUND_TEXT } from '$lib/constants/not-found-text.constant';
+	import {
+		NO_MATCHING_MODEL_IN_SEARCH_RESULTS,
+		NOT_FOUND_TEXT
+	} from '$lib/constants/not-found-text.constant';
 	import type { ScrapedResult } from '$lib/types/scraped-result.type';
 	import { popup } from '@skeletonlabs/skeleton';
 
@@ -7,7 +10,7 @@
 </script>
 
 {#if results.length > 0}
-	<div class="~w-[20rem]/[37rem] mt-4">
+	<div class="mt-4 ~w-[20rem]/[37rem]">
 		<div class="flex justify-between">
 			<h2 class="text-lg font-semibold">Results:</h2>
 		</div>
@@ -21,7 +24,7 @@
 						use:popup={{ event: 'hover', target: `popup-${model}`, placement: 'right' }}
 					>
 						<span class="flex-1">{model}</span>
-						{#if materials === NOT_FOUND_TEXT}
+						{#if [NOT_FOUND_TEXT, NO_MATCHING_MODEL_IN_SEARCH_RESULTS].includes(materials!)}
 							<span class="text-error-500">⚠️</span>
 						{:else if !success}
 							<span class="text-error-500">✗</span>
@@ -30,7 +33,7 @@
 						{/if}
 					</div>
 					<div class="card p-4 shadow-sm" data-popup={`popup-${model}`}>
-						<p>{materials}</p>
+						<p>{materials?.toLocaleLowerCase()}</p>
 					</div>
 				{/each}
 			</div>

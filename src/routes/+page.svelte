@@ -60,6 +60,7 @@
 			value: SupportedBrands.BILLABONG,
 			name: 'brand',
 			label: 'Billabong',
+			checked: true,
 			disabled: isScrapeInProgress
 		},
 		{
