@@ -36,7 +36,9 @@
 
 		for (const model of models) {
 			try {
-				const materials = await scraper(model);
+				const response = await fetch(`/api/scrape-single-model?model=${model}&brand=${brand}`);
+				const { materials } = await response.json();
+
 				results = [...results, { model, success: true, materials }];
 			} catch (error) {
 				results = [...results, { model, success: false }];
