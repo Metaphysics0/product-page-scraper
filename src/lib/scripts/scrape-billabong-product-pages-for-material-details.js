@@ -1,5 +1,6 @@
 // @ts-nocheck
 import { NOT_FOUND_TEXT } from '$lib/constants/not-found-text.constant';
+import { JSDOM } from 'jsdom';
 
 async function getSearchResult(model) {
 	const searchResponse = await fetch(
@@ -33,7 +34,8 @@ async function getProductDetails(model, searchResult) {
 	for (const result of searchResult.results) {
 		const productPageResponse = await fetch(baseProductPageUrl + '/' + result.url);
 		const productPage = await productPageResponse.text();
-		const productPageDocument = new DOMParser().parseFromString(productPage, 'text/html');
+		// const productPageDocument = new DOMParser().parseFromString(productPage, 'text/html');
+		const productPageDocument = new JSDOM(productPage).window;
 
 		if (
 			productPageDocument.getElementsByClassName('style')[0].innerText.split('Style ').at(-1) !==

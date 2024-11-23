@@ -1,5 +1,6 @@
 // @ts-nocheck
 import { NOT_FOUND_TEXT } from '$lib/constants/not-found-text.constant';
+import { createDOM, extractMaterialText, extractStyleModel } from '$lib/server/utils/dom-utils';
 
 const searchUrl =
 	'https://d7fc3x.a.searchspring.io/api/search/search.json?siteId=d7fc3x&resultsFormat=native&resultsPerPage=24&bgfilter.=undefined&page=1';
@@ -37,12 +38,11 @@ async function getProductDetails(model, searchResult) {
 	for (const result of searchResults) {
 		const productPageResponse = await fetch(baseProductPageUrl + '/' + result.url);
 		const productPage = await productPageResponse.text();
-		const productPageDocument = new DOMParser().parseFromString(productPage, 'text/html');
+		// const productPageDocument = new DOMParser().parseFromString(productPage, 'text/html');
+		const productPageDocument = createDOM(productPage);
 
-		const productModel = productPageDocument
-			.getElementsByClassName('style')[0]
-			.innerText.split('Style ')
-			.at(-1);
+		const productModel = extractStyleModel(productPageDocument);
+		console.log('PRODUCT MODEL', productModel);
 
 		if (productModel !== model) {
 			console.log('Model not found:', productModel, model);
@@ -50,9 +50,7 @@ async function getProductDetails(model, searchResult) {
 			continue;
 		}
 
-		const materialTexts = Array.from(
-			productPageDocument.getElementsByClassName('accordion-panel')[1].getElementsByTagName('p')
-		).at(-1).innerText;
+		const materialTexts = extractMaterialText(productPageDocument);
 
 		console.log('Material text:', materialTexts);
 		results.push({ model, materialTexts });

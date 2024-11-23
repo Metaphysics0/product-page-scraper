@@ -1,7 +1,5 @@
 <script lang="ts">
 	import { ProgressRadial } from '@skeletonlabs/skeleton';
-	import { scrapeBillabong } from '$lib/scripts/billabong.scraper';
-	import { scrapeRVCA } from '$lib/scripts/rvca.scraper';
 	import { triggerDownload } from '$lib/utils/trigger-download.util';
 	import type { ScrapedResult } from '$lib/types/scraped-result.type';
 	import ResultsList from '$lib/ui/ResultsList.svelte';
@@ -12,6 +10,7 @@
 	import { validateBrand } from '$lib/utils/validation.utils';
 	import RadioButton from '$lib/ui/common/RadioButton.svelte';
 	import Header from '$lib/ui/Header.svelte';
+	import { scrapeModelsFromCf } from '$lib/utils/scrape-from-cf-endpoint.util';
 
 	let isScrapeInProgress = false;
 	let results: Array<ScrapedResult> = [];
@@ -32,18 +31,12 @@
 		isScrapeInProgress = true;
 		results = [];
 
-		const scraper = brand === SupportedBrands.BILLABONG ? scrapeBillabong : scrapeRVCA;
-
-		for (const model of models) {
-			try {
-				const response = await fetch(`/api/scrape-single-model?model=${model}&brand=${brand}`);
-				const { materials } = await response.json();
-
-				results = [...results, { model, success: true, materials }];
-			} catch (error) {
-				results = [...results, { model, success: false }];
-			}
-		}
+		const result = await scrapeModelsFromCf({ models, brand });
+		results = result.map((a) => ({
+			success: true,
+			model: a.model,
+			materials: a.materialTexts
+		}));
 
 		triggerDownload({
 			fileContents: generateCSV(results),
